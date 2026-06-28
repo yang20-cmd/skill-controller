@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Skill Controller">
+  <rect width="256" height="256" rx="44" fill="#0f172a"/>
+  <rect x="56" y="68" width="144" height="28" rx="14" fill="#2563eb"/>
+  <rect x="56" y="114" width="112" height="28" rx="14" fill="#38bdf8"/>
+  <rect x="56" y="160" width="80" height="28" rx="14" fill="#e2e8f0"/>
+  <circle cx="184" cy="82" r="14" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="14" fill="#ffffff"/>
+  <circle cx="128" cy="174" r="14" fill="#ffffff"/>
+  <text x="56" y="226" fill="#e2e8f0" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700">SC</text>
+</svg>

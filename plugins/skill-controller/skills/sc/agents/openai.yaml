@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Controller"
+  short_description: "可视化查看、开关、删除和个性化 Codex skills"
+  default_prompt: "打开 Skill Controller，查看并管理我的 skills。"

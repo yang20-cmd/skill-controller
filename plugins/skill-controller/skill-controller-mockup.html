@@ -1,0 +1,1421 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Controller</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --line: #d8e0e8;
+      --line-strong: #b9c7d6;
+      --text: #1f2933;
+      --muted: #667386;
+      --blue: #2563eb;
+      --blue-soft: #e8f0ff;
+      --green: #0f8f66;
+      --green-soft: #dff7ee;
+      --amber: #a76614;
+      --amber-soft: #fff2d2;
+      --red: #c2413a;
+      --red-soft: #fff1f0;
+      --ink: #101828;
+      --chip: #edf2f7;
+      --shadow: 0 18px 46px rgba(16, 24, 40, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: auto;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px minmax(520px, 1fr) 370px;
+      min-height: 100vh;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      border-right: 1px solid var(--line);
+      background: #fbfcfd;
+      padding: 20px 16px;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.1;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav-section {
+      margin-bottom: 22px;
+    }
+
+    .nav-title {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text);
+      padding: 9px 10px;
+      text-align: left;
+    }
+
+    .nav-item.active {
+      background: var(--blue-soft);
+      color: #123fa1;
+      font-weight: 800;
+    }
+
+    .pill,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .chip.active {
+      border-color: #9fbcff;
+      background: #eef4ff;
+      color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    .danger-zone {
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid #f2c8c5;
+      border-radius: 8px;
+      background: #fff7f6;
+    }
+
+    .danger-zone h3 {
+      margin: 0 0 6px;
+      color: var(--red);
+      font-size: 14px;
+    }
+
+    .danger-zone p {
+      margin: 0;
+      color: #7a423f;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .main {
+      padding: 22px;
+      min-width: 0;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 24px;
+    }
+
+    .topbar p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 7px 12px;
+      background: #fff;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: var(--line-strong);
+    }
+
+    .btn.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn.danger {
+      border-color: #efb6b1;
+      background: #fffafa;
+      color: var(--red);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--ink);
+      font-size: 20px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 150px 140px 150px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .input,
+    .textarea,
+    .select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    .textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .input:focus,
+    .textarea:focus,
+    .select:focus {
+      border-color: #8fb0ff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .skill-list {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 24px;
+    }
+
+    .skill-row {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) 86px 96px 76px 34px;
+      gap: 12px;
+      align-items: center;
+      min-height: 88px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .skill-row:hover {
+      border-color: var(--line-strong);
+    }
+
+    .skill-row.selected {
+      border-color: #a6bdfc;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+    }
+
+    .skill-row.deleted {
+      opacity: 0.52;
+    }
+
+    .skill-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #edf2f7;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .skill-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      min-width: 0;
+    }
+
+    .skill-name strong {
+      overflow-wrap: anywhere;
+    }
+
+    .skill-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status {
+      display: inline-flex;
+      justify-content: center;
+      min-width: 74px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status.on {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .status.off {
+      background: #eef1f5;
+      color: var(--muted);
+    }
+
+    .status.locked {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .status.deleted {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .toggle {
+      width: 46px;
+      height: 25px;
+      border: 0;
+      border-radius: 999px;
+      background: #cbd5e1;
+      position: relative;
+      padding: 0;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      width: 19px;
+      height: 19px;
+      top: 3px;
+      left: 3px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.22);
+      transition: left 0.14s ease;
+    }
+
+    .toggle.on {
+      background: var(--green);
+    }
+
+    .toggle.on::after {
+      left: 24px;
+    }
+
+    .more {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 6px;
+      background: #f1f4f7;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .empty {
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .detail {
+      border-left: 1px solid var(--line);
+      background: #ffffff;
+      padding: 22px 18px;
+      min-width: 0;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+      overflow: visible;
+      position: static;
+      align-self: start;
+    }
+
+    .detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .detail h2 {
+      margin: 0 0 4px;
+      color: var(--ink);
+      font-size: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .form-row {
+      margin-bottom: 12px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .audit-list {
+      display: grid;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .audit-item {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 8px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid #edf1f5;
+    }
+
+    .audit-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .audit-item span:last-child {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feature-item {
+      border: 1px solid #e5e9ef;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature-item.locked {
+      background: #f8fafc;
+    }
+
+    .feature-top {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .feature-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .feature-title strong {
+      overflow-wrap: anywhere;
+    }
+
+    .feature-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .feature-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feature-editor {
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature-editor .input,
+    .feature-editor .textarea {
+      font-size: 13px;
+    }
+
+    .changes {
+      max-height: 180px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 9px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      max-width: min(620px, calc(100vw - 32px));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101828;
+      color: #fff;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.16s ease;
+      z-index: 5;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: flex-end;
+      background: rgba(15, 23, 42, 0.24);
+      padding: 24px;
+      z-index: 4;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      border: 1px solid #f2c8c5;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f2c8c5;
+      background: #fff7f6;
+    }
+
+    .modal-head strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--red);
+    }
+
+    .modal-head span {
+      color: #7a423f;
+      font-size: 13px;
+    }
+
+    .modal-body {
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .modal-body code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #f2f4f7;
+      color: #374151;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    @media (max-width: 1160px) {
+      .app {
+        grid-template-columns: 230px minmax(460px, 1fr);
+      }
+
+      .detail {
+        display: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        display: block;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        overflow: visible;
+      }
+
+      .main {
+        overflow: visible;
+      }
+
+      .stats,
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .skill-row {
+        grid-template-columns: 42px minmax(0, 1fr) 64px 74px 50px 32px;
+        gap: 8px;
+      }
+
+      .skill-icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      .toggle {
+        width: 44px;
+      }
+
+      .toggle.on::after {
+        left: 22px;
+      }
+
+      .detail {
+        display: block;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        position: static;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SC</div>
+        <div>
+          <h1>Skill Controller</h1>
+          <p>Codex 技能可视化管理</p>
+        </div>
+      </div>
+
+      <section class="nav-section">
+        <p class="nav-title">快捷模式</p>
+        <div id="modeList"></div>
+      </section>
+
+      <section class="nav-section">
+        <p class="nav-title">分组</p>
+        <div id="groupList"></div>
+      </section>
+
+      <div class="danger-zone">
+        <h3>落地安全边界</h3>
+        <p>保存说明会写入 Skill Controller 覆盖表。应用开关会备份并写入 config.toml。删除只允许个人 skill 物理移入备份，系统和插件 skill 会改为禁用。</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>技能列表</h2>
+          <p id="subtitle">扫描会实时读取本机 skill，新添加的 skill 会出现在这里。</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="scanBtn">重新扫描</button>
+          <button class="btn primary" id="applyBtn">应用开关配置</button>
+        </div>
+      </div>
+
+      <section class="stats">
+        <div class="stat"><strong id="totalCount">0</strong><span>扫描到的技能</span></div>
+        <div class="stat"><strong id="enabledCount">0</strong><span>当前启用</span></div>
+        <div class="stat"><strong id="changedCount">0</strong><span>待应用改动</span></div>
+        <div class="stat"><strong id="tokenCount">0</strong><span>估算目录 token</span></div>
+        <div class="stat"><strong id="usageCount">0</strong><span>历史加载次数</span></div>
+      </section>
+
+      <div class="toolbar">
+        <input class="input" id="searchInput" placeholder="搜索：skill 名、中文说明、路径">
+        <select class="select" id="sourceSelect">
+          <option value="all">来源：全部</option>
+          <option value="system">系统内置</option>
+          <option value="personal">个人技能</option>
+          <option value="plugin">插件技能</option>
+        </select>
+        <select class="select" id="statusSelect">
+          <option value="all">状态：全部</option>
+          <option value="enabled">已启用</option>
+          <option value="disabled">已关闭</option>
+          <option value="unused">未使用</option>
+          <option value="deleted">已移入备份</option>
+        </select>
+        <select class="select" id="sortSelect">
+          <option value="name">排序：名称</option>
+          <option value="usage">排序：使用次数</option>
+          <option value="recent">排序：最近使用</option>
+        </select>
+      </div>
+
+      <section class="skill-list" id="skillList">
+        <div class="empty">正在扫描本机 skill...</div>
+      </section>
+    </main>
+
+    <aside class="detail" id="detailPane">
+      <div class="empty">请选择一个 skill。</div>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <strong id="modalTitle">删除确认</strong>
+        <span id="modalSubtitle">个人 skill 会移入备份；其他来源只会禁用。</span>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn" id="modalCancel">取消</button>
+        <button class="btn danger" id="modalConfirm">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const modes = [
+      { id: "daily", name: "日常轻量", countLabel: "推荐", test: (skill) => ["办公", "系统", "浏览器", "代码协作"].includes(skill.category) },
+      { id: "minimal", name: "极简省 token", countLabel: "最少", test: (skill) => ["openai-docs", "skill-creator", "plugin-creator", "documents"].includes(skill.name) },
+      { id: "office", name: "办公文档", countLabel: "文档", test: (skill) => ["办公", "系统"].includes(skill.category) },
+      { id: "design", name: "设计和浏览器", countLabel: "设计", test: (skill) => ["设计", "浏览器", "系统"].includes(skill.category) },
+      { id: "all", name: "全部恢复", countLabel: "默认", test: () => true },
+    ];
+
+    const groups = [
+      { id: "all", name: "全部" },
+      { id: "system", name: "系统内置" },
+      { id: "personal", name: "个人技能" },
+      { id: "plugin", name: "插件技能" },
+      { id: "deleted", name: "已移入备份" },
+    ];
+
+    const sourceNames = { system: "系统", personal: "个人", plugin: "插件" };
+    const state = {
+      loading: true,
+      skills: [],
+      selectedId: null,
+      mode: "daily",
+      group: "all",
+      query: "",
+      source: "all",
+      status: "all",
+      sort: "name",
+      changes: [],
+      pendingDeleteId: null,
+    };
+
+    const el = (id) => document.getElementById(id);
+    const byId = () => new Map(state.skills.map((skill) => [skill.id, skill]));
+
+    function toast(message) {
+      const node = el("toast");
+      node.textContent = message;
+      node.classList.add("show");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => node.classList.remove("show"), 2600);
+    }
+
+    function change(label) {
+      state.changes.unshift({ label, at: new Date().toLocaleTimeString("zh-CN", { hour12: false }) });
+      state.changes = state.changes.slice(0, 14);
+    }
+
+    function initials(skill) {
+      const raw = (skill.category || skill.name || "SC").slice(0, 3);
+      if (/[\u4e00-\u9fff]/.test(raw)) return raw.slice(0, 2);
+      return raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3) || "SC";
+    }
+
+    function skillStatus(skill) {
+      if (skill.deleted) return { text: "已备份", cls: "deleted" };
+      if (skill.locked && !skill.enabled) return { text: "仅隐藏", cls: "locked" };
+      return skill.enabled ? { text: "已启用", cls: "on" } : { text: "已关闭", cls: "off" };
+    }
+
+    function formatUsage(skill) {
+      const count = Number(skill.usageCount || 0);
+      return count > 999 ? `${Math.round(count / 100) / 10}k` : String(count);
+    }
+
+    function formatDate(value) {
+      if (!value) return "无记录";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "无记录";
+      return date.toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    }
+
+    function visibleSkills() {
+      const query = state.query.trim().toLowerCase();
+      const filtered = state.skills.filter((skill) => {
+        if (state.group !== "all" && state.group !== "deleted" && skill.source !== state.group) return false;
+        if (state.group === "deleted" && !skill.deleted) return false;
+        if (state.source !== "all" && skill.source !== state.source) return false;
+        if (state.status === "enabled" && (!skill.enabled || skill.deleted)) return false;
+        if (state.status === "disabled" && (skill.enabled || skill.deleted)) return false;
+        if (state.status === "unused" && (Number(skill.usageCount || 0) > 0 || skill.deleted)) return false;
+        if (state.status === "deleted" && !skill.deleted) return false;
+        if (!query) return true;
+        return [skill.name, skill.title, skill.cnSummary, skill.description, skill.relativePath, skill.category]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(query));
+      });
+      return filtered.sort((a, b) => {
+        if (state.sort === "usage") return Number(b.usageCount || 0) - Number(a.usageCount || 0) || a.name.localeCompare(b.name);
+        if (state.sort === "recent") return String(b.lastUsedAt || "").localeCompare(String(a.lastUsedAt || "")) || a.name.localeCompare(b.name);
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    function syncSelectionToVisible() {
+      const list = visibleSkills();
+      if (!list.length) return;
+      if (!list.some((skill) => skill.id === state.selectedId)) {
+        state.selectedId = list[0].id;
+      }
+    }
+
+    function renderModes() {
+      el("modeList").innerHTML = modes.map((mode) => {
+        const count = state.skills.filter((skill) => !skill.deleted && mode.test(skill)).length;
+        const label = mode.id === "all" ? mode.countLabel : `${count} 开`;
+        return `
+          <button class="nav-item ${state.mode === mode.id ? "active" : ""}" data-mode="${mode.id}">
+            ${mode.name}<span class="pill">${label}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderGroups() {
+      el("groupList").innerHTML = groups.map((group) => {
+        let count = state.skills.length;
+        if (group.id === "deleted") count = state.skills.filter((skill) => skill.deleted).length;
+        else if (group.id !== "all") count = state.skills.filter((skill) => skill.source === group.id).length;
+        return `
+          <button class="nav-item ${state.group === group.id ? "active" : ""}" data-group="${group.id}">
+            ${group.name}<span class="pill">${count}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderStats() {
+      const enabled = state.skills.filter((skill) => skill.enabled && !skill.deleted);
+      const tokenSum = enabled.reduce((sum, skill) => sum + Number(skill.tokenEstimate || 0), 0);
+      const usageSum = state.skills.reduce((sum, skill) => sum + Number(skill.usageCount || 0), 0);
+      el("totalCount").textContent = state.skills.length;
+      el("enabledCount").textContent = enabled.length;
+      el("changedCount").textContent = state.changes.length;
+      el("tokenCount").textContent = tokenSum;
+      el("usageCount").textContent = usageSum;
+      el("subtitle").textContent = state.loading
+        ? "正在扫描本机 skill..."
+        : `已加载 ${state.skills.length} 个 skill。保存说明会持久化；应用开关后请重启 Codex。`;
+    }
+
+    function renderSkillList() {
+      const list = visibleSkills();
+      if (state.loading) {
+        el("skillList").innerHTML = `<div class="empty">正在扫描本机 skill...</div>`;
+        return;
+      }
+      if (list.length === 0) {
+        el("skillList").innerHTML = `<div class="empty">没有匹配的 skill。换个搜索词或筛选条件。</div>`;
+        return;
+      }
+      el("skillList").innerHTML = list.map((skill) => {
+        const status = skillStatus(skill);
+        return `
+          <article class="skill-row ${state.selectedId === skill.id ? "selected" : ""} ${skill.deleted ? "deleted" : ""}" data-select="${skill.id}">
+            <div class="skill-icon">${escapeHtml(initials(skill))}</div>
+            <div>
+              <div class="skill-name">
+                <strong>${escapeHtml(skill.name)}</strong>
+                <span class="pill">${escapeHtml(skill.category)}</span>
+                <span class="pill">${sourceNames[skill.source] || skill.source}</span>
+              </div>
+              <p class="skill-desc">${escapeHtml(skill.cnSummary)}</p>
+            </div>
+            <span class="pill">用 ${formatUsage(skill)}</span>
+            <span class="status ${status.cls}">${status.text}</span>
+            <button class="toggle ${skill.enabled ? "on" : ""}" data-toggle="${skill.id}" aria-label="toggle ${escapeHtml(skill.name)}"></button>
+            <button class="more" data-delete="${skill.id}" title="删除或禁用">...</button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderDetail() {
+      const skill = byId().get(state.selectedId) || state.skills[0];
+      if (!skill) {
+        el("detailPane").innerHTML = `<div class="empty">请选择一个 skill。</div>`;
+        return;
+      }
+      state.selectedId = skill.id;
+      skill.featureSettings ||= { items: [] };
+      skill.featureSettings.items ||= [];
+      const status = skillStatus(skill);
+      const changes = state.changes.length
+        ? state.changes.map((item) => `<div>${item.at} - ${escapeHtml(item.label)}</div>`).join("")
+        : "暂无改动。";
+      const featureItems = skill.featureSettings.items;
+
+      el("detailPane").innerHTML = `
+        <div class="detail-head">
+          <div>
+            <h2>${escapeHtml(skill.name)}</h2>
+            <p class="detail-sub">${escapeHtml(skill.path)}</p>
+          </div>
+          <span class="status ${status.cls}">${status.text}</span>
+        </div>
+
+        <section class="panel">
+          <h3>功能说明编辑</h3>
+          <div class="form-row">
+            <label>显示名称</label>
+            <input class="input" id="titleInput" value="${escapeAttr(skill.title || skill.name)}">
+          </div>
+          <div class="form-row">
+            <label>中文说明</label>
+            <textarea class="textarea" id="summaryInput">${escapeHtml(skill.cnSummary)}</textarea>
+          </div>
+          <div class="form-row">
+            <label>标签</label>
+            <div class="chips">
+              ${["办公", "设计", "浏览器", "系统", "代码协作", "媒体", "知识库", "其他"].map((tag) => `
+                <button class="chip ${skill.category === tag ? "active" : ""}" data-tag="${tag}">${tag}</button>
+              `).join("")}
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="saveSummaryBtn">保存说明</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>触发和 token</h3>
+          <div class="audit-list">
+            <div class="audit-item"><span>触发词</span><span>${escapeHtml((skill.triggers || []).join("、") || "无")}</span></div>
+            <div class="audit-item"><span>估算占用</span><span>${skill.tokenEstimate || 0} 个目录 token</span></div>
+            <div class="audit-item"><span>历史加载</span><span>${Number(skill.usageCount || 0)} 次</span></div>
+            <div class="audit-item"><span>最近加载</span><span>${formatDate(skill.lastUsedAt)}</span></div>
+            <div class="audit-item"><span>来源</span><span>${sourceNames[skill.source] || skill.source}</span></div>
+            <div class="audit-item"><span>删除策略</span><span>${skill.deletable ? "个人 skill 可移入备份" : "系统和插件 skill 只禁用，不物理删除"}</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>原始英文说明</h3>
+          <textarea class="textarea" readonly>${escapeHtml(skill.description || "这个 skill 没有 description。")}</textarea>
+        </section>
+
+        <section class="panel">
+          <h3>试用例子</h3>
+          <div class="audit-list">
+            <div class="audit-item"><span>你可以说</span><span>${escapeHtml(skill.examplePrompt || "")}</span></div>
+            <div class="audit-item"><span>不用时</span><span>${escapeHtml(skill.withoutSkillEffect || "")}</span></div>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn" id="copyExampleBtn">复制例子</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>个性化设置</h3>
+          <div class="form-row">
+            <label>触发偏好</label>
+            <textarea class="textarea" id="triggerPreferenceInput" placeholder="例如：只有我明确说 Word/docx/文档交付时才使用">${escapeHtml(skill.personalization?.triggerPreference || "")}</textarea>
+          </div>
+          <div class="form-row">
+            <label>默认输出要求</label>
+            <textarea class="textarea" id="defaultOutputInput" placeholder="例如：输出前先给我预览结构，文件名用中文，保留简洁表格">${escapeHtml(skill.personalization?.defaultOutput || "")}</textarea>
+          </div>
+          <div class="form-row">
+            <label>备注</label>
+            <textarea class="textarea" id="personalNotesInput" placeholder="记录你对这个 skill 的个人使用习惯">${escapeHtml(skill.personalization?.notes || "")}</textarea>
+          </div>
+          <div class="form-row">
+            <label>
+              <input type="checkbox" id="confirmBeforeUseInput" ${skill.personalization?.confirmBeforeUse ? "checked" : ""}>
+              使用前先确认
+            </label>
+          </div>
+          <div class="audit-list">
+            <div class="audit-item"><span>可更改</span><span>${escapeHtml((skill.customizationLimits?.editable || []).join("、"))}</span></div>
+            <div class="audit-item"><span>不能改</span><span>${escapeHtml((skill.customizationLimits?.blocked || []).join("、") || "暂无")}</span></div>
+            <div class="audit-item"><span>原因</span><span>${escapeHtml(skill.customizationLimits?.reason || "")}</span></div>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn primary" id="savePersonalizationBtn">保存个性化设置</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>功能项控制</h3>
+          <div class="feature-list">
+            ${featureItems.map((feature, index) => `
+              <div class="feature-item ${feature.locked ? "locked" : ""}">
+                <div class="feature-top">
+                  <div class="feature-title">
+                    <input type="checkbox" data-feature-toggle="${index}" ${feature.enabled ? "checked" : ""} ${feature.locked ? "disabled" : ""}>
+                    <strong>${escapeHtml(feature.title || `功能 ${index + 1}`)}</strong>
+                    ${feature.custom ? '<span class="pill">自定义</span>' : ''}
+                    ${feature.locked ? '<span class="pill">锁定</span>' : ''}
+                  </div>
+                </div>
+                <div class="feature-meta">${escapeHtml(feature.locked ? (feature.lockedReason || "不能改") : (feature.description || ""))}</div>
+                <div class="feature-editor">
+                  <input class="input" data-feature-title="${index}" value="${escapeAttr(feature.title || "")}" ${feature.locked ? "disabled" : ""}>
+                  <textarea class="textarea" data-feature-desc="${index}" rows="2" ${feature.locked ? "disabled" : ""}>${escapeHtml(feature.description || "")}</textarea>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="form-row" style="margin-top:12px">
+            <label>新增自定义功能</label>
+            <div class="feature-editor">
+              <input class="input" id="newFeatureTitle" placeholder="例如：检查文档页眉页脚">
+              <textarea class="textarea" id="newFeatureDesc" placeholder="说明这个功能具体做什么，何时启用"></textarea>
+            </div>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn" id="addFeatureBtn">新增功能</button>
+            <button class="btn primary" id="saveFeatureSettingsBtn">保存功能设置</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>可执行操作</h3>
+          <div class="actions">
+            <button class="btn" id="detailToggleBtn">${skill.enabled ? "关闭" : "启用"}</button>
+            <button class="btn danger" id="detailDeleteBtn">${skill.deleted ? "还原" : (skill.deletable ? "删除..." : "禁用...")}</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>待应用改动</h3>
+          <div class="changes">${changes}</div>
+        </section>
+      `;
+    }
+
+    function render() {
+      syncSelectionToVisible();
+      renderModes();
+      renderGroups();
+      renderStats();
+      renderSkillList();
+      renderDetail();
+    }
+
+    function toggleSkill(id) {
+      const skill = byId().get(id);
+      if (!skill || skill.deleted) return;
+      skill.enabled = !skill.enabled;
+      change(`${skill.enabled ? "启用" : "关闭"} ${skill.name}`);
+      render();
+    }
+
+    function applyMode(modeId) {
+      const mode = modes.find((item) => item.id === modeId);
+      if (!mode) return;
+      state.mode = modeId;
+      for (const skill of state.skills) {
+        if (skill.deleted) continue;
+        skill.enabled = Boolean(mode.test(skill));
+      }
+      change(`切换模式：${mode.name}`);
+      toast(`已切换到 ${mode.name}，点击“应用开关配置”后写入 config.toml`);
+      render();
+    }
+
+    async function postJson(path, payload) {
+      const response = await fetch(path, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok || data.ok === false) throw new Error(data.error || "请求失败");
+      return data;
+    }
+
+    async function applyConfig() {
+      const skills = state.skills.map((skill) => ({ name: skill.name, enabled: skill.enabled && !skill.deleted }));
+      const result = await postJson("/api/apply", { skills });
+      state.changes = [];
+      toast(`已写入 ${result.applied} 个 skill 开关配置。重启 Codex 后生效。`);
+      await loadSkills(false);
+    }
+
+    function openDeleteModal(id) {
+      const skill = byId().get(id);
+      if (!skill) return;
+      state.pendingDeleteId = id;
+      el("modalTitle").textContent = skill.deleted ? "还原确认" : (skill.deletable ? "删除确认" : "禁用确认");
+      el("modalSubtitle").textContent = skill.deletable
+        ? "个人 skill 会被移入备份目录。"
+        : "系统和插件 skill 不做物理删除，只会写入禁用状态。";
+      el("modalBody").innerHTML = skill.deleted
+        ? `即将把 <code>${escapeHtml(skill.name)}</code> 从备份状态还原到列表。`
+        : `目标：<code>${escapeHtml(skill.name)}</code><br>路径：<code>${escapeHtml(skill.relativePath || skill.path)}</code><br>${skill.deletable ? "确认后会移动整个 skill 文件夹到备份目录。" : "确认后会把它标记为关闭，之后应用配置并重启 Codex 才会减少触发。"} `;
+      el("modalConfirm").textContent = skill.deleted ? "确认还原" : (skill.deletable ? "确认移入备份" : "确认禁用");
+      el("modalBackdrop").classList.add("open");
+    }
+
+    async function confirmDelete() {
+      const skill = byId().get(state.pendingDeleteId);
+      if (!skill) return;
+      if (skill.deleted) {
+        await postJson("/api/restore", { name: skill.name });
+        toast("已还原覆盖状态。若文件夹已被物理移走，需要从备份目录手动移回。");
+      } else {
+        const result = await postJson("/api/delete", { name: skill.name });
+        toast(result.action === "moved" ? "已移入备份目录。" : "已禁用该 skill。点击应用配置后重启生效。");
+      }
+      closeModal();
+      await loadSkills(false);
+    }
+
+    function closeModal() {
+      state.pendingDeleteId = null;
+      el("modalBackdrop").classList.remove("open");
+    }
+
+    async function saveSummary() {
+      const skill = byId().get(state.selectedId);
+      if (!skill) return;
+      skill.title = el("titleInput").value.trim() || skill.name;
+      skill.cnSummary = el("summaryInput").value.trim() || skill.cnSummary;
+      await postJson("/api/summary", { name: skill.name, title: skill.title, cnSummary: skill.cnSummary });
+      change(`保存说明 ${skill.name}`);
+      toast("说明已保存，下次重新扫描仍会保留。");
+      await loadSkills(false);
+    }
+
+    async function copyExample() {
+      const skill = byId().get(state.selectedId);
+      if (!skill?.examplePrompt) return;
+      try {
+        await navigator.clipboard.writeText(skill.examplePrompt);
+        toast("试用例子已复制。");
+      } catch {
+        toast("浏览器不允许复制，直接选中右侧文字即可。");
+      }
+    }
+
+    async function savePersonalization() {
+      const skill = byId().get(state.selectedId);
+      if (!skill) return;
+      const personalization = {
+        triggerPreference: el("triggerPreferenceInput")?.value.trim() || "",
+        defaultOutput: el("defaultOutputInput")?.value.trim() || "",
+        confirmBeforeUse: Boolean(el("confirmBeforeUseInput")?.checked),
+        notes: el("personalNotesInput")?.value.trim() || "",
+      };
+      skill.personalization = personalization;
+      await postJson("/api/personalization", { name: skill.name, personalization });
+      change(`保存个性化设置 ${skill.name}`);
+      toast("个性化设置已保存。不能直接改的部分已在原因里说明。");
+      await loadSkills(false);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("\n", " ");
+    }
+
+    async function loadSkills(showToast = true) {
+      state.loading = true;
+      render();
+      try {
+        const response = await fetch("/api/skills", { cache: "no-store" });
+        const data = await response.json();
+        const previous = state.selectedId;
+        state.skills = data.skills;
+        state.selectedId = state.skills.some((skill) => skill.id === previous) ? previous : state.skills[0]?.id || null;
+        state.loading = false;
+        if (showToast) toast(`扫描完成：${state.skills.length} 个 skill`);
+      } catch (error) {
+        state.loading = false;
+        toast(`读取失败：${error.message}`);
+      }
+      render();
+    }
+
+    document.addEventListener("click", async (event) => {
+      const modeButton = event.target.closest("[data-mode]");
+      if (modeButton) applyMode(modeButton.dataset.mode);
+
+      const groupButton = event.target.closest("[data-group]");
+      if (groupButton) {
+        state.group = groupButton.dataset.group;
+        render();
+      }
+
+      const row = event.target.closest("[data-select]");
+      if (row && !event.target.closest("[data-toggle], [data-delete]")) {
+        state.selectedId = row.dataset.select;
+        render();
+        el("detailPane").scrollTop = 0;
+      }
+
+      const toggle = event.target.closest("[data-toggle]");
+      if (toggle) toggleSkill(toggle.dataset.toggle);
+
+      const del = event.target.closest("[data-delete]");
+      if (del) openDeleteModal(del.dataset.delete);
+
+      try {
+        if (event.target.id === "modalCancel") closeModal();
+        if (event.target.id === "modalConfirm") await confirmDelete();
+        if (event.target.id === "scanBtn") await loadSkills();
+        if (event.target.id === "applyBtn") await applyConfig();
+        if (event.target.id === "saveSummaryBtn") await saveSummary();
+        if (event.target.id === "copyExampleBtn") await copyExample();
+        if (event.target.id === "savePersonalizationBtn") await savePersonalization();
+        if (event.target.id === "detailToggleBtn") toggleSkill(state.selectedId);
+        if (event.target.id === "detailDeleteBtn") openDeleteModal(state.selectedId);
+      } catch (error) {
+        toast(`操作失败：${error.message}`);
+      }
+
+      const tag = event.target.closest("[data-tag]");
+      if (tag) {
+        const skill = byId().get(state.selectedId);
+        if (skill) {
+          skill.category = tag.dataset.tag;
+          change(`修改标签 ${skill.name} -> ${skill.category}`);
+          render();
+        }
+      }
+    });
+
+    el("searchInput").addEventListener("input", (event) => {
+      state.query = event.target.value;
+      syncSelectionToVisible();
+      renderSkillList();
+      renderDetail();
+    });
+
+    el("sourceSelect").addEventListener("change", (event) => {
+      state.source = event.target.value;
+      syncSelectionToVisible();
+      renderSkillList();
+      renderDetail();
+    });
+
+    el("statusSelect").addEventListener("change", (event) => {
+      state.status = event.target.value;
+      syncSelectionToVisible();
+      renderSkillList();
+      renderDetail();
+    });
+
+    el("sortSelect").addEventListener("change", (event) => {
+      state.sort = event.target.value;
+      syncSelectionToVisible();
+      renderSkillList();
+      renderDetail();
+    });
+
+    el("modalBackdrop").addEventListener("click", (event) => {
+      if (event.target.id === "modalBackdrop") closeModal();
+    });
+
+    loadSkills();
+  </script>
+</body>
+</html>
